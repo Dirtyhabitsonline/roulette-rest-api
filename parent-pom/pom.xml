@@ -26,6 +26,7 @@
 
         <java-api.version>1.8</java-api.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- README: Please keep the alphabetical order of the properties -->
 
