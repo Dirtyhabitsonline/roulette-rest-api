@@ -36,6 +36,7 @@
         <assertj-guava.version>1.3.1</assertj-guava.version>
         <guava.version>18.0</guava.version>
         <junit.version>4.12</junit.version>
+        <lombok.version>1.16.2</lombok.version>
         <mockito.version>1.10.16</mockito.version>
 
         <!-- PLUGINS -->
@@ -44,6 +45,7 @@
         <maven-clean-plugin.version>2.6.1</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
         <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
+        <maven-failsafe-plugin.version>2.18.1</maven-failsafe-plugin.version>
         <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
         <maven-project-info-reports-plugin.version>2.8</maven-project-info-reports-plugin.version>
         <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
@@ -57,6 +59,15 @@
         <!-- README: Use properties for dependencies' versions -->
 
         <dependencies>
+
+            <!-- Provided -->
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
+            </dependency>
 
             <!-- Compile -->
 
@@ -141,6 +152,24 @@
                             <configuration>
                                 <failOnWarning>true</failOnWarning>
                             </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>${maven-failsafe-plugin.version}</version>
+                    <configuration>
+                        <includes>
+                            <include>**/*IT.java</include>
+                        </includes>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>integration-test</goal>
+                                <goal>verify</goal>
+                            </goals>
                         </execution>
                     </executions>
                 </plugin>
