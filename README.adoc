@@ -6,7 +6,11 @@
 
 === HOW-TO
 
+----
+mvn clean verify spring-boot:run
+----
 
+Connect to `http://localhost:8080/spin` using POST method
 
 === COPYRIGHT
 
