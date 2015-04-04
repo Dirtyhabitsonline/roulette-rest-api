@@ -39,6 +39,7 @@
         <junit.version>4.12</junit.version>
         <lombok.version>1.16.2</lombok.version>
         <mockito.version>1.10.16</mockito.version>
+        <spring-rest-exception-handler.version>1.0.3</spring-rest-exception-handler.version>
 
         <!-- PLUGINS -->
 
@@ -76,6 +77,11 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cz.jirutka.spring</groupId>
+                <artifactId>spring-rest-exception-handler</artifactId>
+                <version>${spring-rest-exception-handler.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
