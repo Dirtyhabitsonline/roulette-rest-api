@@ -6,8 +6,8 @@ import com.github.lukaszkusek.roulette.rest.bets.RedBet;
 import com.github.lukaszkusek.roulette.rest.bets.StraightBet;
 import com.github.lukaszkusek.roulette.rest.results.Results;
 import org.assertj.core.api.ThrowableAssert;
-import org.junit.Before;
 import org.junit.Test;
+import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
@@ -30,13 +30,10 @@ public class RouletteIT extends BaseIT {
     @Autowired
     private Rng rng;
 
-    @Before
-    public void setupRng() {
-        given(rng.get(0, 36)).willReturn(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 1, 1, 1, 2, 2, 2, 3, 4, 9, 36);
-    }
-
     @Test
     public void shouldReturnMethodNotAllowedForAnyOtherMethodThanPOST() {
+        setupRng();
+
         shouldReturnMethodNotAllowedFor(this::GET);
         shouldReturnMethodNotAllowedFor(this::PUT);
         shouldReturnMethodNotAllowedFor(this::DELETE);
@@ -45,6 +42,7 @@ public class RouletteIT extends BaseIT {
     @Test
     public void shouldRequireBetsAsPostBody() {
         // given
+        setupRng();
         Bets bets = null;
 
         // when
@@ -53,12 +51,13 @@ public class RouletteIT extends BaseIT {
         // then
         assertThat(exception)
                 .hasStatus(BAD_REQUEST)
-                .responseBodyContains("Required request body content is missing");
+                .responseBodyContains("The content you've send is probably malformed.");
     }
 
     @Test
     public void shouldHandleSpinRequestForEmptyBets() {
         // given
+        setupRng();
         Bets bets = new Bets();
 
         // when
@@ -71,6 +70,7 @@ public class RouletteIT extends BaseIT {
     @Test
     public void shouldHaveCorrectWinningNumbers() {
         // given
+        rng().willReturn(1, 2, 3, 4, 5, 6, 7, 8, 9);
         Bets bets = new Bets();
 
         // when
@@ -99,6 +99,7 @@ public class RouletteIT extends BaseIT {
     @Test
     public void shouldCalculateCorrectOutcomesForBets() {
         // given
+        rng().willReturn(1);
 
         Bets bets = new Bets();
         // TODO more bets
@@ -120,6 +121,7 @@ public class RouletteIT extends BaseIT {
     @Test
     public void shouldProvideProperStatistics() {
         // given
+        rng().willReturn(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 1, 1, 1, 2, 2, 2, 3, 4, 9, 36);
         Bets bets = new Bets();
 
         // when
@@ -133,6 +135,14 @@ public class RouletteIT extends BaseIT {
                 .hasHistory(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 1, 1, 1, 2, 2, 2, 3, 4, 9, 36)
                 .hasBlackRedZeros(42, 57, 0)
                 .hasFirstSecondThirdDozens(95, 0, 4);
+    }
+
+    private void setupRng() {
+        rng().willReturn(1);
+    }
+
+    private BDDMockito.BDDMyOngoingStubbing<Integer> rng() {
+        return given(rng.get(0, 36));
     }
 
     private CornerBet cornerBet(Set<Integer> numbers, int amount) {
