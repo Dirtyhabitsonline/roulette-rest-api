@@ -1,10 +1,9 @@
 package com.github.lukaszkusek.roulette.rest;
 
 import com.github.lukaszkusek.roulette.rest.bets.Bets;
-import com.github.lukaszkusek.roulette.rest.bets.CornerBet;
 import com.github.lukaszkusek.roulette.rest.bets.RedBet;
-import com.github.lukaszkusek.roulette.rest.bets.StraightBet;
 import com.github.lukaszkusek.roulette.rest.results.Results;
+import cz.jirutka.spring.exhandler.messages.ValidationErrorMessage;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 import org.mockito.BDDMockito;
@@ -13,9 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.client.HttpStatusCodeException;
 
-import java.util.Set;
+import java.io.IOException;
 import java.util.stream.IntStream;
 
+import static com.github.lukaszkusek.roulette.rest.BetFactory.*;
 import static com.github.lukaszkusek.roulette.rest.Util.catchHttpStatusCodeException;
 import static com.github.lukaszkusek.roulette.rest.assertions.Assertions.assertThat;
 import static com.google.common.collect.ImmutableSet.of;
@@ -52,6 +52,31 @@ public class RouletteIT extends BaseIT {
         assertThat(exception)
                 .hasStatus(BAD_REQUEST)
                 .responseBodyContains("The content you've send is probably malformed.");
+    }
+
+    @Test
+    public void shouldValidateBets() throws IOException {
+        // given
+        setupRng();
+        Bets bets = new Bets();
+        bets.setRedBet(new RedBet());
+
+        // when
+        HttpStatusCodeException exception = catchHttpStatusCodeException(() -> POST(bets));
+
+        // then
+        assertThat(exception)
+                .hasStatus(UNPROCESSABLE_ENTITY)
+                .hasError(validationError("redBet.amount", null, "may not be null"));
+    }
+
+    private ValidationErrorMessage validationError(String field, Object rejectedValue, String message) {
+        ValidationErrorMessage errorMessage = new ValidationErrorMessage();
+        errorMessage.setTitle("Validation Failed");
+        errorMessage.setStatus(UNPROCESSABLE_ENTITY);
+        errorMessage.setDetail("The content you've send contains 1 validation errors.");
+        errorMessage.addError(field, rejectedValue, message);
+        return errorMessage;
     }
 
     @Test
@@ -102,8 +127,20 @@ public class RouletteIT extends BaseIT {
         rng().willReturn(1);
 
         Bets bets = new Bets();
-        // TODO more bets
+        bets.setBlackBet(blackBet(1));
         bets.setRedBet(redBet(1));
+        bets.setColumn1Bet(column1Bet(1));
+        bets.setColumn2Bet(column2Bet(1));
+        bets.setColumn3Bet(column3Bet(1));
+        bets.setDozen1Bet(dozen1Bet(1));
+        bets.setDozen2Bet(dozen2Bet(1));
+        bets.setDozen3Bet(dozen3Bet(1));
+        bets.setEvenBet(evenBet(1));
+        bets.setOddBet(oddBet(1));
+        bets.setHalf1Bet(half1Bet(1));
+        bets.setHalf2Bet(half2Bet(1));
+        bets.setSplitBets(asList(splitBet(of(1, 2), 1), splitBet(of(2, 3), 1)));
+        bets.setStreetBets(asList(streetBet(of(1, 2, 3), 1), streetBet(of(4, 5, 6), 1)));
         bets.setStraightBets(asList(straightBet(1, 1), straightBet(2, 1)));
         bets.setCornerBets(singletonList(cornerBet(of(1, 2, 4, 5), 1)));
 
@@ -112,8 +149,20 @@ public class RouletteIT extends BaseIT {
 
         // then
         assertThat(response.getBody())
-                // TODO more bets
+                .hasBlackBet(blackBet(0))
                 .hasRedBet(redBet(2))
+                .hasColumn1Bet(column1Bet(3))
+                .hasColumn2Bet(column2Bet(0))
+                .hasColumn3Bet(column3Bet(0))
+                .hasDozen1Bet(dozen1Bet(3))
+                .hasDozen2Bet(dozen2Bet(0))
+                .hasDozen3Bet(dozen3Bet(0))
+                .hasEvenBet(evenBet(0))
+                .hasOddBet(oddBet(2))
+                .hasHalf1Bet(half1Bet(2))
+                .hasHalf2Bet(half2Bet(0))
+                .hasSplitBets(splitBet(of(1, 2), 18), splitBet(of(2, 3), 0))
+                .hasStreetBets(streetBet(of(1, 2, 3), 12), streetBet(of(4, 5, 6), 0))
                 .hasStraightBets(straightBet(1, 36), straightBet(2, 0))
                 .hasCornerBets(cornerBet(of(1, 2, 4, 5), 9));
     }
@@ -143,26 +192,6 @@ public class RouletteIT extends BaseIT {
 
     private BDDMockito.BDDMyOngoingStubbing<Integer> rng() {
         return given(rng.get(0, 36));
-    }
-
-    private CornerBet cornerBet(Set<Integer> numbers, int amount) {
-        CornerBet cornerBet = new CornerBet();
-        cornerBet.setNumbers(numbers);
-        cornerBet.setAmount(amount);
-        return cornerBet;
-    }
-
-    private RedBet redBet(int amount) {
-        RedBet redBet = new RedBet();
-        redBet.setAmount(amount);
-        return redBet;
-    }
-
-    private StraightBet straightBet(Integer number, Integer amount) {
-        StraightBet straightBet = new StraightBet();
-        straightBet.setNumber(number);
-        straightBet.setAmount(amount);
-        return straightBet;
     }
 
     private void shouldReturnMethodNotAllowedFor(ThrowableAssert.ThrowingCallable methodCall) {
