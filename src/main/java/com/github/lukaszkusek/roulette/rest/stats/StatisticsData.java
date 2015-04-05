@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 
-import static java.util.stream.IntStream.range;
+import static java.util.stream.IntStream.rangeClosed;
 
 class StatisticsData {
 
@@ -24,11 +24,11 @@ class StatisticsData {
     }
 
     private void initAbsentForWithZeros() {
-        range(0, 37).forEach(number -> absentFor.put(number, 0));
+        rangeClosed(0, 36).forEach(number -> absentFor.put(number, 0));
     }
 
     private void increaseAbsentForCounters() {
-        range(0, 37).forEach(number -> absentFor.compute(number, (key, value) -> value + 1));
+        rangeClosed(0, 36).forEach(number -> absentFor.compute(number, (key, value) -> value + 1));
     }
 
     public Queue<Integer> getHistory() {
