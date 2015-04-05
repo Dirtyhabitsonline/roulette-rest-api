@@ -1,16 +1,35 @@
-== Roulette REST API - simple console casino game REST API
+== Roulette REST API - simple casino game REST API
 
 === ABOUT
 
+A simple service which provides roulette functionality.
 
+Send all your bets using POST request and service will respond with
+
+* winning number,
+* all your bets with calculated outcome,
+* statistics for last 200 spins.
 
 === HOW-TO
+
+Run service using:
 
 ----
 mvn clean verify spring-boot:run
 ----
 
-Connect to `http://localhost:8080/spin` using POST method
+Connect to `http://localhost:8080/spin` using POST method.
+
+==== Example post message
+
+----
+{
+  "redBet": {"amount": 3},
+  "splitBets": [
+      {"amount": 1, "numbers": [1, 2]},
+      {"amount": 2, "numbers": [1, 2]}]
+}
+----
 
 === COPYRIGHT
 
