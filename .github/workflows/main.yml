@@ -1,0 +1,1 @@
+mvn clean verify spring-boot:run
